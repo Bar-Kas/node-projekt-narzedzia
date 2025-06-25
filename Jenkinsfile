@@ -1,46 +1,24 @@
 pipeline {
   agent any
 
-  environment {
-    CI = 'true'
-  }
-
   stages {
-    stage('Checkout') {
-      steps {
-        checkout scm
-      }
-    }
-
-    stage('Build & Test in Node.js container') {
-      steps {
-        script {
-          // Pobieramy obraz node:18 i wykonujemy w nim komendy
-          docker.image('node:18').inside {
-            dir('node-app') {
-              sh 'npm install'
-              sh 'npm run lint || true'
-              sh 'npm test'
-            }
-          }
+    stage('Build & Test') {
+      agent {
+        docker {
+          image 'node:18'
+          args  '-u root:root'   // (opcjonalnie) aby mieć prawa do zapisu
         }
       }
-    }
-
-    stage('Build Docker Image') {
       steps {
-        // Ten krok użyje hostowego Dockera (małe „docker build” w twoim katalogu)
-        sh 'docker build -t node-app:latest node-app'
+        sh 'cd node-app && npm install'
+        sh 'cd node-app && npm test'
       }
     }
-  }
-
-  post {
-    success {
-      echo '✅ Pipeline zakończony sukcesem.'
-    }
-    failure {
-      echo '❌ Pipeline zakończony porażką.'
+    stage('Build Docker Image') {
+      steps {
+        // teraz po prostu wywołujesz docker CLI na hoście:
+        sh 'docker build -t node-app:latest node-app'
+      }
     }
   }
 }
