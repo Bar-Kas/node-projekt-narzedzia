@@ -1,3 +1,21 @@
+jest.mock('mysql2/promise', () => ({
+  createConnection: async () => ({
+    execute: async () => [[{ test: 1 }]],
+    end: async () => {}
+  })
+}));
+
+const request = require('supertest');
+const app = require('../index');  // eksportowana przez Ciebie apka
+
+describe('GET /users', () => {
+  test('zwraca JSON i 200', async () => {
+    const res = await request(app).get('/users');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+  });
+});
+
 const request = require('supertest');
 const express = require('express');
 const mysql = require('mysql2/promise');
