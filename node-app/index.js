@@ -66,8 +66,11 @@ app.delete('/users/:id', async (req, res) => {
   res.json({ deletedId: id });
 });
 
-// Uruchomienie serwera na wszystkich interfejsach
-app.listen(port, '0.0.0.0', () => {
-  console.log(`Aplikacja działa na porcie ${port}`);
-});
+if (require.main === module) {
+  app.listen(port, '0.0.0.0', () => {
+    console.log(`Aplikacja działa na porcie ${port}`);
+  });
+} else {
+  module.exports = app;
+}
 
