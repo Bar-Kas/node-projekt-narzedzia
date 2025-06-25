@@ -66,11 +66,11 @@ app.delete('/users/:id', async (req, res) => {
   res.json({ deletedId: id });
 });
 
+// Jeżeli uruchamiamy bezpośrednio (np. docker run), startujemy serwer:
 if (require.main === module) {
   app.listen(port, '0.0.0.0', () => {
     console.log(`Aplikacja działa na porcie ${port}`);
   });
-} else {
-  module.exports = app;
 }
-
+// Jeżeli importujesz jako moduł (w testach), zwracamy instancję expressa:
+module.exports = app;
