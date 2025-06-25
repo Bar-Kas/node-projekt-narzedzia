@@ -1,11 +1,5 @@
 pipeline {
-  /* 1. Używamy agenta dockerContainer bez args */
-  agent {
-    dockerContainer {
-      image 'node:18'
-      // args '-u root:root'   ← usunięte, bo nieobsługiwane
-    }
-  }
+  agent any
 
   environment {
     CI = 'true'
@@ -18,28 +12,25 @@ pipeline {
       }
     }
 
-    stage('Install dependencies') {
+    stage('Build & Test in Node.js container') {
       steps {
-        dir('node-app') {
-          sh 'npm install'
+        script {
+          // Pobieramy obraz node:18 i wykonujemy w nim komendy
+          docker.image('node:18').inside {
+            dir('node-app') {
+              sh 'npm install'
+              sh 'npm run lint || true'
+              sh 'npm test'
+            }
+          }
         }
       }
     }
 
-    stage('Lint & Test') {
+    stage('Build Docker Image') {
       steps {
-        dir('node-app') {
-          sh 'npm run lint || true'
-          sh 'npm test'
-        }
-      }
-    }
-
-    stage('Build') {
-      steps {
-        dir('node-app') {
-          sh 'npm run build || echo "Brak skryptu build"'
-        }
+        // Ten krok użyje hostowego Dockera (małe „docker build” w twoim katalogu)
+        sh 'docker build -t node-app:latest node-app'
       }
     }
   }
