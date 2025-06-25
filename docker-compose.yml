@@ -1,3 +1,13 @@
+version: "3.8"
+
+networks:
+  ci-net:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  jenkins_home:
+
 services:
   mysql:
     image: mysql:8.0
@@ -12,9 +22,9 @@ services:
       - ci-net
 
   node-app:
-    image: node-app:latest      # zamiast build: context
+    image: node-app:latest
     container_name: node-app
-    restart: always              # automatyczne wznawianie
+    restart: always
     depends_on:
       - mysql
     environment:
@@ -46,18 +56,11 @@ services:
     depends_on:
       - node-app
       - jenkins
+    # montujemy cały plik nginx.conf zamiast default.conf
     volumes:
-      - ./nginx/app.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     networks:
       - ci-net
     ports:
       - "80:80"
-
-volumes:
-  mysql_data:
-  jenkins_home:
-
-networks:
-  ci-net:
-    driver: bridge
 
