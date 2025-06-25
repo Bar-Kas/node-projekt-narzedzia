@@ -1,11 +1,9 @@
 const express = require('express');
 const mysql = require('mysql2/promise');
 const path = require('path');
-
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Parsowanie JSON z ciała żądania
 app.use(express.json());
 
 // Serwowanie plików statycznych (frontend)
