@@ -1,8 +1,9 @@
 pipeline {
+  /* 1. Używamy agenta dockerContainer bez args */
   agent {
     dockerContainer {
       image 'node:18'
-      args  '-u root:root'
+      // args '-u root:root'   ← usunięte, bo nieobsługiwane
     }
   }
 
