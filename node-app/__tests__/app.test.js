@@ -1,40 +1,25 @@
+// node-app/__tests__/app.test.js
+
+// 1) Mock mysql2/promise, żeby nie próbować kontaktować się z prawdziwą bazą:
 jest.mock('mysql2/promise', () => ({
   createConnection: async () => ({
-    execute: async () => [[{ test: 1 }]],
+    execute: async () => [[{ id: 1, name: 'Test', email: 'test@example.com' }]],
     end: async () => {}
   })
 }));
 
 const request = require('supertest');
-const app = require('../index');  // eksportowana przez Ciebie apka
+const app = require('../index');  // eksportowane wyżej
 
-describe('GET /users', () => {
-  test('zwraca JSON i 200', async () => {
+describe('API /users', () => {
+  test('GET /users zwraca listę i status 200', async () => {
     const res = await request(app).get('/users');
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
-  });
-});
-
-const request = require('supertest');
-const express = require('express');
-const mysql = require('mysql2/promise');
-const appModule = require('../index'); // jeśli zwracasz instancję app
-
-// Jeśli w index.js nie eksportujesz app, zrób to:
-// module.exports = app; pod koniec index.js
-
-describe('GET /users', () => {
-  let server;
-  beforeAll((done) => {
-    server = appModule.listen(0, done);
-  });
-  afterAll((done) => {
-    server.close(done);
-  });
-  test('zwraca JSON i 200', async () => {
-    const res = await request(server).get('/users');
-    expect(res.status).toBe(200);
-    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body[0]).toEqual({
+      id: 1,
+      name: 'Test',
+      email: 'test@example.com'
+    });
   });
 });
